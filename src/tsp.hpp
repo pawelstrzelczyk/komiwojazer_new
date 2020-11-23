@@ -24,12 +24,13 @@ public:
 				if (aktualnaOdleglosc < min && tab[j].flag == false)
 				{
 					min = aktualnaOdleglosc;
-					cout << min << " " << "("<<j<<") ";
-					
+					cout << min << " "
+						 << "(" << j << ") ";
+
 					v = j;
 				}
 			}
-			min_pkt=tab[v];
+			min_pkt = tab[v];
 			cout << endl;
 			calaodleglosc += min;
 

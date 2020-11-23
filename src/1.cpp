@@ -76,9 +76,12 @@ int main()
 			temp2 = t[i].getY();
 			sf::String str;
 
-			char t = (i + 'A');
+			string z="";
+			z+= char((t[i].getId() / 10) % 10 + '0');
+			z+= char(t[i].getId() % 10 + '0');
 
-			sf::Text entity(t, font, 30);
+
+			sf::Text entity(z, font, 30);
 			entity.setPosition(temp1, temp2);
 			window.draw(entity);
 			//Q.pop();
