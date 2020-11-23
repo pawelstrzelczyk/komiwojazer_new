@@ -26,7 +26,7 @@ int main()
 	in >> liczba;
 	const int liczba_ = liczba;
 
-	punkt::pkt tab[100];
+	punkt::pkt tab[25];
 	int x, y, id;
 
 	while (!in.eof())
@@ -55,6 +55,8 @@ int main()
 	}*/
 	while (window.isOpen())
 	{
+		sf::Font font;
+		font.loadFromFile("times.ttf");
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
@@ -73,9 +75,9 @@ int main()
 			temp1 = t[i].getX();
 			temp2 = t[i].getY();
 			sf::String str;
-			sf::Font font;
+
 			char t = (i + 'A');
-			font.loadFromFile("times.ttf");
+
 			sf::Text entity(t, font, 30);
 			entity.setPosition(temp1, temp2);
 			window.draw(entity);

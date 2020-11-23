@@ -10,7 +10,7 @@ public:
 	{
 		while (!Q.empty())
 		{
-			std::cout << "(" << Q.front().getX() << "," << Q.front().getY() << ")\n";
+			std::cout << "(" << Q.front().getX() << "," << Q.front().getY() << ")"<<"("<<Q.front().getId()<<")\n";
 			Q.pop();
 		}
 	}
