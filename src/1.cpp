@@ -18,15 +18,34 @@ int main()
 	std::queue<punkt::pkt> Q;
 	srand(time(0));
 	ifstream in;
-	gen.instanceGenerator(25, 1000);
-	in.open("dane.txt");
+	gen.instanceGenerator(52, 1000);
+	in.open("berlin52.txt");
 
 	int i = 0;
 	int liczba;
 	in >> liczba;
 	const int liczba_ = liczba;
+	double **distances = new double *[liczba_], **visibility = new double *[liczba_], **pheromone = new double *[liczba_];
+	int** routes = new int*[liczba_];
+	for (int i = 0; i < liczba_; i++)
+	{
+		distances[i] = new double[liczba_];
+		visibility[i] = new double[liczba_];
+		pheromone[i] = new double[liczba_];
+		routes[i] = new int[liczba_];
+	}
+	for (int i = 0; i < liczba_; i++)
+	{
+		for (int j = 0; j < liczba_; j++)
+		{
+			distances[i][j] = 0;
+			visibility[i][j] = 0;
+			pheromone[i][j] = 0;
+			routes[i][j] = 0;
+		}
+	}
 
-	punkt::pkt tab[25];
+	punkt::pkt tab[53];
 	int x, y, id;
 
 	while (!in.eof())
@@ -40,10 +59,22 @@ int main()
 
 	Q.push(tab[0]);
 	tsp.komiwojazer(liczba_, tab, Q);
-	punkt::pkt t[26];
+	for (int i = 0; i < 100; i++)
+		tsp.ants(liczba_, tab, distances, visibility, pheromone, routes);
+	ofstream out;
+	out.open("routes.csv");
+	for (int i = 0; i < 30; i++)
+	{
+		for (int j = 0; j < liczba_; j++)
+		{
+			out << routes[i][j] << ";";
+		}
+		out << endl;
+	}
+	punkt::pkt t[53];
 	q.printQueue(Q);
 	q.returnQueue(Q, t);
-	sf::RenderWindow window(sf::VideoMode(1920, 1080), "Window");
+	sf::RenderWindow window(sf::VideoMode(1500, 1000), "Window");
 	/*const int temp_size = liczba_*2;
 	int tab_pomX[liczba_];
 	int tab_pomY[liczba_];
@@ -76,10 +107,9 @@ int main()
 			temp2 = t[i].getY();
 			sf::String str;
 
-			string z="";
-			z+= char((t[i].getId() / 10) % 10 + '0');
-			z+= char(t[i].getId() % 10 + '0');
-
+			string z = "";
+			z += char((t[i].getId() / 10) % 10 + '0');
+			z += char(t[i].getId() % 10 + '0');
 
 			sf::Text entity(z, font, 30);
 			entity.setPosition(temp1, temp2);
