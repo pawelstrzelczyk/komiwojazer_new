@@ -2,22 +2,35 @@
 using namespace std;
 #include "punkt.hpp"
 punkt point;
+
 class TSP
 {
 public:
-	/*void pherAct(int n, double p, int colonySize, double** pheromone, int **routes)
+	double power(double base, int power)
 	{
-		for (int i = 0; i < colonySize; i++)
+		double result = 1;
+		for (int i = 0; i < power; i++)
 		{
-			for (int j = 0; j < n; j++)
-			{
-				//pheromone[routes[i][j]][routes[i][j+1]] = double(1 - p)*pheromone[routes[i][j]][routes[i][j+1]];
-			}
+			result *= base;
 		}
-	}*/
-	void countCost(int n, int colonySize, double** distances, int** routes, int* oneAntDistance)
+		return result;
+	}
+	void printTab(int n, int s, double** routes)
 	{
-		int distance = 0;
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = 0; j < s; j++)
+			{
+				cout << routes[i][j] << " ";
+			}
+			cout << endl;
+		}
+	}
+	double* countCost(int n, int colonySize, double**& distances, int**& routes)
+	{
+		double distance = 0;
+		double* arr = 0;
+		arr = new double[colonySize];
 		for (int i = 0; i < colonySize; i++)
 		{
 			distance = 0;
@@ -25,24 +38,51 @@ public:
 			{
 				distance += distances[routes[i][j]][routes[i][j + 1]];
 			}
-			oneAntDistance[i] = distance;
+			arr[i] = distance;
+			if (arr[i] < 7600)
+			{
+				cout << arr[i] << "\n";
+				for (int j = 0; j < n; j++)
+				{
+					cout << routes[i][j] << " ";
+				}
+
+				cout << endl;
+			}
+		}
+
+		return arr;
+	}
+	void pherAct(int n, double p, int colonySize, double**& pheromone, int**& routes, double**& distances)
+	{
+		double* arr = new double[colonySize];
+		arr = countCost(n, colonySize, distances, routes);
+		for (int i = 0; i < colonySize; i++)
+		{
+
+			for (int j = 0; j < n - 1; j++)
+			{
+				pheromone[routes[i][j]][routes[i][j + 1]] = double(1 - p) * pheromone[routes[i][j]][routes[i][j + 1]] + double(0.2 / arr[i]);
+				//cout << endl;
+				//cout << pheromone[routes[i][j]][routes[i][j + 1]] << " ";
+			}
 		}
 	}
 
-	void ants(int n, punkt::pkt tab[], double** distances, double** visibility, double** pheromone, int** routes)
+	void ants(int n, int colonySize, punkt::pkt tab[], double**& distances, double**& visibility, double**& pheromone, int**& routes)
 	{
-		int colonySize = 30;
+
 		double** visibilityTemp = new double*[n];
 		double* probability = new double[n];
 		double* p = new double[n];
-		double alpha = 3, beta = 4, sum = 0, r;
+		double alpha = 9, beta = 12, sum = 0, r;
+		int current = 0;
 		for (int i = 0; i < n; i++)
 			visibilityTemp[i] = new double[n];
 		for (int i = 0; i < n; i++)
 		{
 			for (int j = 0; j < n; j++)
 			{
-				pheromone[i][j] = 0.0001;
 				distances[i][j] = point.odleglosc(tab[i], tab[j]);
 				if (i == j)
 				{
@@ -50,7 +90,7 @@ public:
 				}
 				else
 					visibility[i][j] = double(1 / distances[i][j]);
-				visibility[i][0] = 0;
+				//visibility[i][0] = 0;
 			}
 		}
 		for (int i = 0; i < colonySize; i++)
@@ -62,33 +102,42 @@ public:
 					visibilityTemp[a][b] = visibility[a][b];
 				}
 			}
-			for (int j = 1; j < n - 1; j++)
+
+			for (int j = 0; j < n; j++)
 			{
-				int current = routes[i][j];
+				current = routes[i][j];
+				sum = 0;
 				for (int a = 0; a < n; a++)
 				{
 					visibilityTemp[a][current] = 0;
+					probability[a] = 0;
 				}
+
 				for (int a = 0; a < n; a++)
 				{
-					probability[a] = pow(pheromone[current][a], alpha) * pow(visibilityTemp[current][a], beta);
+					if (visibilityTemp[current][a] != 0)
+						probability[a] = power(pheromone[current][a], alpha) * power(visibilityTemp[current][a], beta);
+					else
+						probability[a] = 0;
 					sum += probability[a];
 				}
+
 				for (int a = 0; a < n; a++)
 				{
-					p[a] = (1 / sum) * probability[a];
+					p[a] = probability[a] / sum;
 				}
-				sum = 0;
-				r = ((double)rand() / (RAND_MAX));
 
-				for (int k = 1; k < n; k++)
+				sum = 0;
+				r = ((double)rand() / (RAND_MAX)); //losowanie z zakresu (0,1]
+
+				for (int k = 0; k < n; k++)
 				{
 					sum += p[k];
 
-					if (r <= sum)
+					if (r <= sum && k != current)
 					{
 						routes[i][j + 1] = k;
-
+						//cout << "r: " << r << " suma: " << sum << endl;
 						break;
 					}
 				}

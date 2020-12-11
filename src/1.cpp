@@ -21,12 +21,13 @@ int main()
 	gen.instanceGenerator(52, 1000);
 	in.open("berlin52.txt");
 
-	int i = 0;
+	int i = 0, colonySize = 30;
+	double evaporation = 0.15;
 	int liczba;
 	in >> liczba;
 	const int liczba_ = liczba;
-	double **distances = new double *[liczba_], **visibility = new double *[liczba_], **pheromone = new double *[liczba_];
-	int** routes = new int*[liczba_];
+	double **distances = new double *[liczba_], **visibility = new double *[liczba_], **pheromone = new double *[liczba_], *oneAntdistance = new double[colonySize];
+	int** routes = new int*[colonySize];
 	for (int i = 0; i < liczba_; i++)
 	{
 		distances[i] = new double[liczba_];
@@ -40,17 +41,21 @@ int main()
 		{
 			distances[i][j] = 0;
 			visibility[i][j] = 0;
-			pheromone[i][j] = 0;
+			if (i != j)
+				pheromone[i][j] = 0.0001;
+			else
+				pheromone[i][j] = 0;
 		}
 	}
-	for (int i = 0; i < 30; i++)
+	for (int i = 0; i < colonySize; i++)
 	{
+		oneAntdistance[i] = 0;
 		for (int j = 0; j < liczba_; j++)
 		{
-			if (j == 0)
-				routes[i][j] = 1;
-			else
+			if (j != 0)
 				routes[i][j] = 0;
+			else
+				routes[i][j] = rand() % liczba_;
 		}
 	}
 
@@ -68,11 +73,24 @@ int main()
 
 	Q.push(tab[0]);
 	tsp.komiwojazer(liczba_, tab, Q);
-	for (int i = 0; i < 100; i++)
-		tsp.ants(liczba_, tab, distances, visibility, pheromone, routes);
+	for (int i = 0; i < 500; i++)
+	{
+		tsp.ants(liczba_, colonySize, tab, distances, visibility, pheromone, routes);
+		tsp.pherAct(liczba_, evaporation, colonySize, pheromone, routes, distances);
+	}
 	ofstream out;
+	out.open("visibility.csv");
+	for (int i = 0; i < liczba_; i++)
+	{
+		for (int j = 0; j < liczba_; j++)
+		{
+			out << visibility[i][j] << ";";
+		}
+		out << endl;
+	}
+	out.close();
 	out.open("routes.csv");
-	for (int i = 0; i < 30; i++)
+	for (int i = 0; i < colonySize; i++)
 	{
 		for (int j = 0; j < liczba_; j++)
 		{
@@ -80,6 +98,17 @@ int main()
 		}
 		out << endl;
 	}
+	out.close();
+	out.open("pheromone.csv");
+	for (int i = 0; i < liczba_; i++)
+	{
+		for (int j = 0; j < liczba_; j++)
+		{
+			out << pheromone[i][j] << ";";
+		}
+		out << endl;
+	}
+	out.close();
 	punkt::pkt t[53];
 	q.printQueue(Q);
 	q.returnQueue(Q, t);
