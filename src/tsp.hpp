@@ -5,13 +5,37 @@ punkt point;
 class TSP
 {
 public:
+	/*void pherAct(int n, double p, int colonySize, double** pheromone, int **routes)
+	{
+		for (int i = 0; i < colonySize; i++)
+		{
+			for (int j = 0; j < n; j++)
+			{
+				//pheromone[routes[i][j]][routes[i][j+1]] = double(1 - p)*pheromone[routes[i][j]][routes[i][j+1]];
+			}
+		}
+	}*/
+	void countCost(int n, int colonySize, double** distances, int** routes, int* oneAntDistance)
+	{
+		int distance = 0;
+		for (int i = 0; i < colonySize; i++)
+		{
+			distance = 0;
+			for (int j = 0; j < n - 1; j++)
+			{
+				distance += distances[routes[i][j]][routes[i][j + 1]];
+			}
+			oneAntDistance[i] = distance;
+		}
+	}
+
 	void ants(int n, punkt::pkt tab[], double** distances, double** visibility, double** pheromone, int** routes)
 	{
 		int colonySize = 30;
 		double** visibilityTemp = new double*[n];
 		double* probability = new double[n];
 		double* p = new double[n];
-		double alpha = 2, beta = 4, sum = 0, r;
+		double alpha = 3, beta = 4, sum = 0, r;
 		for (int i = 0; i < n; i++)
 			visibilityTemp[i] = new double[n];
 		for (int i = 0; i < n; i++)
@@ -38,7 +62,7 @@ public:
 					visibilityTemp[a][b] = visibility[a][b];
 				}
 			}
-			for (int j = 0; j < n - 1; j++)
+			for (int j = 1; j < n - 1; j++)
 			{
 				int current = routes[i][j];
 				for (int a = 0; a < n; a++)
@@ -52,12 +76,12 @@ public:
 				}
 				for (int a = 0; a < n; a++)
 				{
-					p[a] = (1 / sum) * p[a];
+					p[a] = (1 / sum) * probability[a];
 				}
 				sum = 0;
 				r = ((double)rand() / (RAND_MAX));
 
-				for (int k = 0; k < n; k++)
+				for (int k = 1; k < n; k++)
 				{
 					sum += p[k];
 

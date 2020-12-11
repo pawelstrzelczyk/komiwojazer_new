@@ -41,7 +41,16 @@ int main()
 			distances[i][j] = 0;
 			visibility[i][j] = 0;
 			pheromone[i][j] = 0;
-			routes[i][j] = 0;
+		}
+	}
+	for (int i = 0; i < 30; i++)
+	{
+		for (int j = 0; j < liczba_; j++)
+		{
+			if (j == 0)
+				routes[i][j] = 1;
+			else
+				routes[i][j] = 0;
 		}
 	}
 
@@ -80,8 +89,8 @@ int main()
 	int tab_pomY[liczba_];
 	int i=0;
 	while(!Q.empty()){
-	 tab_pomX[i] = Q.front().getX();
-	 tab_pomY[i] = Q.front().getY();
+	tab_pomX[i] = Q.front().getX();
+	tab_pomY[i] = Q.front().getY();
 	 Q.pop();
 	}*/
 	while (window.isOpen())
