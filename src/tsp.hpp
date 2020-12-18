@@ -39,13 +39,11 @@ public:
 				distance += distances[routes[i][j]][routes[i][j + 1]];
 			}
 			arr[i] = distance;
-
-				cout << endl;
-			}
 		}
 
 		return arr;
 	}
+
 	void pherAct(int n, double p, int colonySize, double**& pheromone, int**& routes, double**& distances)
 	{
 		double* arr = new double[colonySize];
@@ -56,8 +54,6 @@ public:
 			for (int j = 0; j < n - 1; j++)
 			{
 				pheromone[routes[i][j]][routes[i][j + 1]] = double(1 - p) * pheromone[routes[i][j]][routes[i][j + 1]] + double(0.2 / arr[i]);
-				//cout << endl;
-				//cout << pheromone[routes[i][j]][routes[i][j + 1]] << " ";
 			}
 		}
 	}
@@ -83,7 +79,6 @@ public:
 				}
 				else
 					visibility[i][j] = double(1 / distances[i][j]);
-				//visibility[i][0] = 0;
 			}
 		}
 		for (int i = 0; i < colonySize; i++)
@@ -130,12 +125,15 @@ public:
 					if (r <= sum && k != current)
 					{
 						routes[i][j + 1] = k;
-						//cout << "r: " << r << " suma: " << sum << endl;
+
 						break;
 					}
 				}
 			}
 		}
+		delete[] probability;
+		delete[] visibilityTemp;
+		delete[] p;
 	}
 
 	void komiwojazer(int n, punkt::pkt tab[], queue<punkt::pkt>& Q)
