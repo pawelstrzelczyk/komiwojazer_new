@@ -39,13 +39,6 @@ public:
 				distance += distances[routes[i][j]][routes[i][j + 1]];
 			}
 			arr[i] = distance;
-			if (arr[i] < 7600)
-			{
-				cout << arr[i] << "\n";
-				for (int j = 0; j < n; j++)
-				{
-					cout << routes[i][j] << " ";
-				}
 
 				cout << endl;
 			}
