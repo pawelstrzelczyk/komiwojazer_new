@@ -5,11 +5,11 @@
 class generator
 {
 public:
-	void instanceGenerator(int n, int range)
+	void instanceGenerator(int n, int range, std::string file_name)
 	{
 
 		std::ofstream out;
-		out.open("dane.txt");
+		out.open(file_name);
 		int x, y;
 		out << n << std::endl;
 		for (int i = 1; i <= n; i++)

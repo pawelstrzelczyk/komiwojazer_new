@@ -34,7 +34,7 @@ public:
 		for (int i = 0; i < colonySize; i++)
 		{
 			distance = 0;
-			for (int j = 0; j < n - 1; j++)
+			for (int j = 0; j < n; j++)
 			{
 				distance += distances[routes[i][j]][routes[i][j + 1]];
 			}
@@ -44,27 +44,27 @@ public:
 		return arr;
 	}
 
-	void pherAct(int n, double p, int colonySize, double**& pheromone, int**& routes, double**& distances)
+	void pherAct(int n, double p, int colonySize, double**& pheromone, int**& routes, double**& distances, double Q)
 	{
 		double* arr = new double[colonySize];
 		arr = countCost(n, colonySize, distances, routes);
 		for (int i = 0; i < colonySize; i++)
 		{
 
-			for (int j = 0; j < n - 1; j++)
+			for (int j = 0; j < n; j++)
 			{
-				pheromone[routes[i][j]][routes[i][j + 1]] = double(1 - p) * pheromone[routes[i][j]][routes[i][j + 1]] + double(0.2 / arr[i]);
+				pheromone[routes[i][j]][routes[i][j + 1]] = double(1 - p) * pheromone[routes[i][j]][routes[i][j + 1]] + double(Q / arr[i]);
 			}
 		}
 	}
 
-	void ants(int n, int colonySize, punkt::pkt tab[], double**& distances, double**& visibility, double**& pheromone, int**& routes)
+	void ants(int n, int colonySize, punkt::pkt tab[], double**& distances, double**& visibility, double**& pheromone, int**& routes, int alpha, int beta)
 	{
 
 		double** visibilityTemp = new double*[n];
 		double* probability = new double[n];
 		double* p = new double[n];
-		double alpha = 9, beta = 12, sum = 0, r;
+		double sum = 0, r;
 		int current = 0;
 		for (int i = 0; i < n; i++)
 			visibilityTemp[i] = new double[n];
@@ -122,16 +122,20 @@ public:
 				{
 					sum += p[k];
 
-					if (r <= sum && k != current)
+					if (visibilityTemp[current][k] != 0 && r <= sum && k != current)
 					{
 						routes[i][j + 1] = k;
 
 						break;
 					}
 				}
+				routes[i][n] = routes[i][0];
 			}
 		}
+
 		delete[] probability;
+		for (int i = 0; i < n; i++)
+			delete[] visibilityTemp[i];
 		delete[] visibilityTemp;
 		delete[] p;
 	}

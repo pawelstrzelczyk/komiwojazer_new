@@ -6,17 +6,17 @@ public:
 	class pkt
 	{
 	private:
-		int x;
-		int y;
+		double x;
+		double y;
 		int id;
 
 	public:
 		bool flag = false;
-		void setX(int X)
+		void setX(double X)
 		{
 			this->x = X;
 		}
-		void setY(int Y)
+		void setY(double Y)
 		{
 			this->y = Y;
 		}
@@ -37,7 +37,7 @@ public:
 			return this->id;
 		}
 	};
-	int square(int a)
+	double square(double a)
 	{
 		return a * a;
 	}

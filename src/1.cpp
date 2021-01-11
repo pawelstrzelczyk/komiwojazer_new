@@ -1,7 +1,8 @@
 #include "generator.hpp"
 #include "punkt.hpp"
-//#include "queue.hpp"
+#include "queue.hpp"
 #include "tsp.hpp"
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
@@ -13,27 +14,47 @@ int main()
 {
 	generator gen;
 	TSP tsp;
-	//qu q;
+	qu q;
 
 	std::queue<punkt::pkt> Q;
 	srand(time(0));
 	ifstream in;
-	gen.instanceGenerator(25, 1000);
-	in.open("berlin52.txt");
-
-	int i = 0, colonySize = 30;
-	double evaporation = 0.15;
+	gen.instanceGenerator(1000, 1000, "random1000_1000.txt");
+	in.open("random1000_1000.txt");
+	//---------------wczytywanie-----------------------
 	int liczba;
 	in >> liczba;
+	punkt::pkt tab[1001];
 	const int liczba_ = liczba;
-	double **distances = new double *[liczba_], **visibility = new double *[liczba_], **pheromone = new double *[liczba_], *oneAntdistance = new double[colonySize];
+	double x, y, maxX, maxY;
+	int id, i = 0;
+
+	while (!in.eof())
+	{
+		in >> id >> x >> y;
+		tab[i].setId(id);
+		tab[i].setX(x);
+		tab[i].setY(y);
+		i++;
+		if (maxX < x)
+			maxX = x;
+		if (maxY < y)
+			maxY = y;
+	}
+	in.close();
+	//-------------------------------------------------
+	//-------------deklaracja zmiennych------------------
+	//int colonySize = 150, alpha = 9, beta = 12, *bestOfAll = new int[liczba_ + 1], sim_n = 1200;
+	//double evaporation = 0.15, Q = 0.2, MIN = 1000000, *best = new double[liczba_ + 1];
+
+	/*double **distances = new double *[liczba_], **visibility = new double *[liczba_], **pheromone = new double *[liczba_], *oneAntdistance = new double[colonySize];
 	int** routes = new int*[colonySize];
 	for (int i = 0; i < liczba_; i++)
 	{
 		distances[i] = new double[liczba_];
 		visibility[i] = new double[liczba_];
 		pheromone[i] = new double[liczba_];
-		routes[i] = new int[liczba_];
+		routes[i] = new int[liczba_ + 1];
 	}
 	for (int i = 0; i < liczba_; i++)
 	{
@@ -47,58 +68,66 @@ int main()
 				pheromone[i][j] = 0;
 		}
 	}
+	bool* taken = new bool[liczba_];
 	for (int i = 0; i < colonySize; i++)
 	{
 		oneAntdistance[i] = 0;
-		for (int j = 0; j < liczba_; j++)
+		for (int j = 0; j < liczba_ + 1; j++)
 		{
 			if (j != 0)
 				routes[i][j] = 0;
 			else
-				routes[i][j] = rand() % liczba_;
+			{
+				for (int z = 0; z < liczba_; z++)
+				{
+					if (taken[z] == false)
+					{
+						routes[i][j] = rand() % (liczba_);
+						taken[routes[i][j]] = true;
+					}
+				}
+			}
 		}
-	}
+	}*/
+	int start = clock();
+	Q.push(tab[0]); //zachlanny
+	tsp.komiwojazer(liczba_, tab, Q);
+	//q.printQueue(Q);
+	q.returnQueue(Q, tab);
+	//-----------------symulacja i zapis najlepszego wyniku-------------------
 
-	punkt::pkt tab[1001];
-	int x, y, id;
-
-	while (!in.eof())
+	/*for (int i = 0; i < sim_n; i++)
 	{
-		in >> id >> x >> y;
-		tab[i].setId(id);
-		tab[i].setX(x);
-		tab[i].setY(y);
-		i++;
-	}
-
-	//Q.push(tab[0]);
-	//tsp.komiwojazer(liczba_, tab, Q);
-	double MIN = 1000000;
-	double* best = new double[liczba_];
-	int* bestOfAll = new int[liczba_];
-	for (int i = 0; i < 500; i++)
-	{
-		tsp.ants(liczba_, colonySize, tab, distances, visibility, pheromone, routes);
-		tsp.pherAct(liczba_, evaporation, colonySize, pheromone, routes, distances);
+		tsp.ants(liczba_, colonySize, tab, distances, visibility, pheromone, routes, alpha, beta);
+		tsp.pherAct(liczba_, evaporation, colonySize, pheromone, routes, distances, Q);
 		best = tsp.countCost(liczba_, colonySize, distances, routes);
 		for (int i = 0; i < colonySize; i++)
 		{
 			if (best[i] < MIN)
 			{
 				MIN = best[i];
-				for (int j = 0; j < liczba_; j++)
+				for (int j = 0; j <= liczba_; j++)
 				{
 					bestOfAll[j] = routes[i][j];
 				}
 			}
 		}
-	}
-	cout << endl
-		 << MIN << endl;
-	for (int j = 0; j < liczba_; j++)
+	}*/
+	int end = (clock() - start) / 1000;
+	std::cout << end << std::endl;
+	/*std::cout << std::endl
+			  << MIN << std::endl;
+	ofstream out;
+	out.open("route.csv");
+	for (int j = 0; j <= liczba_; j++)
 	{
-		cout << bestOfAll[j] << " ";
+		out << bestOfAll[j] + 1 << endl;
 	}
+	std::cout << std::endl
+			  << "time: "
+			  << end << std::endl;
+	out.close();*/
+	//---------------------------------------------------------------------------
 	/*ofstream out;
 	out.open("visibility.csv");
 	for (int i = 0; i < liczba_; i++)
@@ -130,20 +159,25 @@ int main()
 		out << endl;
 	}
 	out.close();*/
-	//punkt::pkt t[1001];
-	//q.printQueue(Q);
-	//q.returnQueue(Q, t);
 
-	/*const int temp_size = liczba_*2;
-	int tab_pomX[liczba_];
-	int tab_pomY[liczba_];
-	int i=0;
-	while(!Q.empty()){
-	tab_pomX[i] = Q.front().getX();
-	tab_pomY[i] = Q.front().getY();
-	 Q.pop();
-	}*/
-	sf::RenderWindow window(sf::VideoMode(1500, 1000), "Window");
+	//const int temp_size = liczba_ * 2;
+	int* tab_pomX = new int[liczba_];
+	int* tab_pomY = new int[liczba_];
+	i = 0;
+
+	while (!Q.empty())
+	{
+		tab_pomX[i] = Q.front().getX();
+		tab_pomY[i] = Q.front().getY();
+		Q.pop();
+	}
+	//-----------------------display----------------------------
+	std::cout << maxX << " " << maxY;
+	if (int(maxX / 1920) < 1)
+		maxX = 1920;
+	if (int(maxY / 1050) < 1)
+		maxY = 1050;
+	sf::RenderWindow window(sf::VideoMode(1920, 1050), "Window");
 	while (window.isOpen())
 	{
 		sf::Font font;
@@ -158,17 +192,18 @@ int main()
 		float temp2 = 0;
 		float temp1 = 0;
 		sf::VertexArray lines(sf::LineStrip, liczba_ + 1);
-		for (int i = 0; i < liczba_; i++)
+		for (int i = 0; i <= liczba_; i++)
 		{
-			temp1 = tab[bestOfAll[i]].getX();
-			temp2 = tab[bestOfAll[i]].getY();
+			temp1 = (tab[i].getX()) / (maxX / 1920.0);
+			temp2 = 1050 - (tab[i].getY()) / (maxY / 1050.0);
 			sf::String str;
 
 			string z = "";
-			z += char((tab[bestOfAll[i]].getId() / 10) % 10 + '0');
-			z += char(tab[bestOfAll[i]].getId() % 10 + '0');
+			z += char((tab[i].getId() / 100) % 10 + '0');
+			z += char((tab[i].getId() / 10) % 10 + '0');
+			z += char(tab[i].getId() % 10 + '0');
 
-			sf::Text entity(z, font, 30);
+			sf::Text entity(z, font, 20);
 			entity.setPosition(temp1, temp2);
 			window.draw(entity);
 			lines[i].position = sf::Vector2f(temp1, temp2);
@@ -177,9 +212,24 @@ int main()
 		window.draw(lines);
 		window.display();
 	}
+	//---------------------------------------------------------------------
+	/*for (int i = 0; i < liczba_; ++i)
+	{
+		if (i < colonySize)
+		{
+			delete[] routes[i];
+		}
+
+		delete[] distances[i];
+		delete[] visibility[i];
+
+		delete[] pheromone[i];
+	}
+
+	delete[] oneAntdistance;
+	delete[] routes[colonySize];
 	delete[] routes;
 	delete[] distances;
-	delete[] visibility;
-	delete[] oneAntdistance;
 	delete[] pheromone;
+	delete[] visibility;*/
 }
