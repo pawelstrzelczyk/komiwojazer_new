@@ -1,6 +1,6 @@
 #include "generator.hpp"
 #include "punkt.hpp"
-#include "queue.hpp"
+//#include "queue.hpp"
 #include "tsp.hpp"
 #include <algorithm>
 #include <cmath>
@@ -14,13 +14,13 @@ int main()
 {
 	generator gen;
 	TSP tsp;
-	qu q;
+	//qu q;
 
-	std::queue<punkt::pkt> Q;
+	//std::queue<punkt::pkt> Q;
 	srand(time(0));
 	ifstream in;
-	gen.instanceGenerator(1000, 1000, "random1000_1000.txt");
-	in.open("random1000_1000.txt");
+	gen.instanceGenerator(20, 1000, "random10_100.txt");
+	in.open("st70.txt");
 	//---------------wczytywanie-----------------------
 	int liczba;
 	in >> liczba;
@@ -44,17 +44,19 @@ int main()
 	in.close();
 	//-------------------------------------------------
 	//-------------deklaracja zmiennych------------------
-	//int colonySize = 150, alpha = 9, beta = 12, *bestOfAll = new int[liczba_ + 1], sim_n = 1200;
-	//double evaporation = 0.15, Q = 0.2, MIN = 1000000, *best = new double[liczba_ + 1];
-
-	/*double **distances = new double *[liczba_], **visibility = new double *[liczba_], **pheromone = new double *[liczba_], *oneAntdistance = new double[colonySize];
+	int colonySize = 40, alpha = 9, beta = 12, *bestOfAll = new int[liczba_ + 1], sim_n = 2000;
+	double evaporation = 0.4, Q = 1, MIN = 1000000, *best = new double[liczba_ + 1];
+	bool *taken = new bool[liczba_], repeating = true;
+	double **distances = new double *[liczba_], **visibility = new double *[liczba_], **pheromone = new double *[liczba_], *oneAntdistance = new double[colonySize];
 	int** routes = new int*[colonySize];
-	for (int i = 0; i < liczba_; i++)
+	for (i = 0; i < liczba_; i++)
 	{
 		distances[i] = new double[liczba_];
 		visibility[i] = new double[liczba_];
 		pheromone[i] = new double[liczba_];
-		routes[i] = new int[liczba_ + 1];
+		taken[i] = false;
+		if (i < colonySize)
+			routes[i] = new int[liczba_ + 1];
 	}
 	for (int i = 0; i < liczba_; i++)
 	{
@@ -62,13 +64,18 @@ int main()
 		{
 			distances[i][j] = 0;
 			visibility[i][j] = 0;
+
 			if (i != j)
 				pheromone[i][j] = 0.0001;
 			else
 				pheromone[i][j] = 0;
+
+			if (i < colonySize)
+				routes[i][j] = 0;
 		}
 	}
-	bool* taken = new bool[liczba_];
+
+	int R, m = colonySize;
 	for (int i = 0; i < colonySize; i++)
 	{
 		oneAntdistance[i] = 0;
@@ -78,25 +85,53 @@ int main()
 				routes[i][j] = 0;
 			else
 			{
-				for (int z = 0; z < liczba_; z++)
+				if (repeating == true)
 				{
-					if (taken[z] == false)
+					for (int z = 0; z < liczba_; z++)
 					{
-						routes[i][j] = rand() % (liczba_);
-						taken[routes[i][j]] = true;
+						if (taken[z] == false)
+						{
+							routes[i][j] = rand() % (liczba_);
+							taken[routes[i][j]] = true;
+						}
+					}
+				}
+				else if (repeating == false)
+				{
+					if (m > 0)
+					{
+						R = rand() % (liczba_);
+						if (taken[R] == false)
+						{
+							routes[i][j] = R;
+							taken[routes[i][j]] = true;
+							m--;
+						}
+						else
+						{
+
+							do
+							{
+								R = rand() % (liczba_);
+							} while (taken[R] == true);
+							routes[i][j] = R;
+							taken[routes[i][j]] = true;
+							m--;
+						}
 					}
 				}
 			}
 		}
-	}*/
+	}
+
 	int start = clock();
-	Q.push(tab[0]); //zachlanny
+	/*Q.push(tab[0]); //zachlanny
 	tsp.komiwojazer(liczba_, tab, Q);
-	//q.printQueue(Q);
-	q.returnQueue(Q, tab);
+	q.printQueue(Q);
+	q.returnQueue(Q, tab);*/
 	//-----------------symulacja i zapis najlepszego wyniku-------------------
 
-	/*for (int i = 0; i < sim_n; i++)
+	for (int i = 0; i < sim_n; i++)
 	{
 		tsp.ants(liczba_, colonySize, tab, distances, visibility, pheromone, routes, alpha, beta);
 		tsp.pherAct(liczba_, evaporation, colonySize, pheromone, routes, distances, Q);
@@ -112,10 +147,18 @@ int main()
 				}
 			}
 		}
+	}
+	/*for (int i = 0; i < colonySize; i++)
+	{
+		for (int j = 0; j < liczba_; j++)
+		{
+			cout << routes[i][j] << " ";
+		}
+		cout << endl;
 	}*/
 	int end = (clock() - start) / 1000;
-	std::cout << end << std::endl;
-	/*std::cout << std::endl
+	//std::cout << end << std::endl;
+	std::cout << std::endl
 			  << MIN << std::endl;
 	ofstream out;
 	out.open("route.csv");
@@ -126,7 +169,7 @@ int main()
 	std::cout << std::endl
 			  << "time: "
 			  << end << std::endl;
-	out.close();*/
+	out.close();
 	//---------------------------------------------------------------------------
 	/*ofstream out;
 	out.open("visibility.csv");
@@ -148,8 +191,8 @@ int main()
 		}
 		out << endl;
 	}
-	out.close();
-	out.open("pheromone.csv");
+	out.close();*/
+	/*out.open("pheromone.csv");
 	for (int i = 0; i < liczba_; i++)
 	{
 		for (int j = 0; j < liczba_; j++)
@@ -158,10 +201,10 @@ int main()
 		}
 		out << endl;
 	}
-	out.close();*/
+	out.close(); */
 
 	//const int temp_size = liczba_ * 2;
-	int* tab_pomX = new int[liczba_];
+	/*int* tab_pomX = new int[liczba_];
 	int* tab_pomY = new int[liczba_];
 	i = 0;
 
@@ -170,7 +213,7 @@ int main()
 		tab_pomX[i] = Q.front().getX();
 		tab_pomY[i] = Q.front().getY();
 		Q.pop();
-	}
+	}*/
 	//-----------------------display----------------------------
 	std::cout << maxX << " " << maxY;
 	if (int(maxX / 1920) < 1)
@@ -188,32 +231,57 @@ int main()
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}
-		window.clear(sf::Color::Black);
+		window.clear(sf::Color::White);
 		float temp2 = 0;
 		float temp1 = 0;
 		sf::VertexArray lines(sf::LineStrip, liczba_ + 1);
 		for (int i = 0; i <= liczba_; i++)
 		{
-			temp1 = (tab[i].getX()) / (maxX / 1920.0);
-			temp2 = 1050 - (tab[i].getY()) / (maxY / 1050.0);
+
+			temp1 = (tab[bestOfAll[i]].getX()) / (maxX / 1920.0);
+			temp2 = 1050 - (tab[bestOfAll[i]].getY()) / (maxY / 1050.0);
 			sf::String str;
 
 			string z = "";
-			z += char((tab[i].getId() / 100) % 10 + '0');
-			z += char((tab[i].getId() / 10) % 10 + '0');
-			z += char(tab[i].getId() % 10 + '0');
+			z += char((tab[bestOfAll[i]].getId() / 100) % 10 + '0');
+			z += char((tab[bestOfAll[i]].getId() / 10) % 10 + '0');
+			z += char(tab[bestOfAll[i]].getId() % 10 + '0');
 
 			sf::Text entity(z, font, 20);
+			entity.setFillColor(sf::Color::Black);
 			entity.setPosition(temp1, temp2);
 			window.draw(entity);
 			lines[i].position = sf::Vector2f(temp1, temp2);
-		}
+			lines[i].color = sf::Color::Black;
+			/*for (int i = 0; i < colonySize; i++)
+			{
+				for (int j = 0; j <= liczba_; j++)
+				{
+					temp1 = (tab[routes[i][j]].getX()) / (maxX / 1920.0);
+					temp2 = 1050 - (tab[routes[i][j]].getY()) / (maxY / 1050.0);
+					sf::String str;
 
+					string z = "";
+					z += char((tab[routes[i][j]].getId() / 100) % 10 + '0');
+					z += char((tab[routes[i][j]].getId() / 10) % 10 + '0');
+					z += char((tab[routes[i][j]]).getId() % 10 + '0');
+
+					sf::Text entity(z, font, 20);
+					entity.setFillColor(sf::Color::Black);
+					entity.setPosition(temp1, temp2);
+					window.draw(entity);
+
+					lines[j].position = sf::Vector2f(temp1, temp2);
+					lines[j].color = sf::Color::Black;
+				}
+				window.draw(lines);
+			}*/
+		}
 		window.draw(lines);
 		window.display();
 	}
 	//---------------------------------------------------------------------
-	/*for (int i = 0; i < liczba_; ++i)
+	for (int i = 0; i < liczba_; i++)
 	{
 		if (i < colonySize)
 		{
@@ -231,5 +299,5 @@ int main()
 	delete[] routes;
 	delete[] distances;
 	delete[] pheromone;
-	delete[] visibility;*/
+	delete[] visibility;
 }
